@@ -18,7 +18,7 @@ import { fileNameByURL } from "@/utils/utils";
 
 import useQueryFetchTodayHoroscopeCharmInfo from "../_hooks/queries/useQueryFetchTodayHoroscopeCharmInfo";
 
-export default function CharmCustomizeSheet() {
+export default function CharmCustomizeSheet({ onlyDownload }: { onlyDownload: boolean }) {
   const { push } = useRouter();
   const { data, isPending } = useQueryFetchTodayHoroscopeCharmInfo();
 
@@ -31,13 +31,20 @@ export default function CharmCustomizeSheet() {
     push("/home");
 
     setTimeout(() => {
-      if (userInfo.treeId) {
-        push(`/decorate/${userInfo.treeId}`);
-      } else {
+      // if (userInfo.treeId) {
+      //   push(`/decorate/${userInfo.treeId}`);
+      //   setDecorateInfo(prev => ({ ...prev, onlyDownload: false, imageURL: data?.imageURL ?? "" }));
+      // } else {
+      //   push(`/decorate/download`);
+      //   setDecorateInfo(prev => ({ ...prev, onlyDownload: true, imageURL: data?.imageURL ?? "" }));
+      // }
+      if (onlyDownload) {
         push(`/decorate/download`);
+        setDecorateInfo(prev => ({ ...prev, onlyDownload: true, imageURL: data?.imageURL ?? "" }));
+      } else {
+        push(`/decorate/${userInfo.treeId}`);
+        setDecorateInfo(prev => ({ ...prev, onlyDownload: false, imageURL: data?.imageURL ?? "" }));
       }
-
-      setDecorateInfo(prev => ({ ...prev, onlyDownload: true, imageURL: data?.imageURL ?? "" }));
     }, 100);
   };
 
@@ -53,7 +60,7 @@ export default function CharmCustomizeSheet() {
     <Drawer direction="bottom">
       <DrawerTrigger>
         <Button className="h-[54px] w-full rounded-[15px] bg-main-purple-suho text-[16px] font-[600] text-white hover:bg-[#7553f0]">
-          오늘의 행운 부적 받기
+          행운 부적 받기
         </Button>
       </DrawerTrigger>
       <DrawerContent className="mx-auto flex h-full w-full items-center justify-center rounded-none border-none bg-transparent  md:w-[430px]">

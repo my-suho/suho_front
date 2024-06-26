@@ -1,6 +1,7 @@
 import dynamic from "next/dynamic";
 
 import { useEffect, useState } from "react";
+import { isMobileSafari } from "react-device-detect";
 import { EditTextarea } from "react-edit-text";
 import "react-edit-text/dist/index.css";
 import { IoIosArrowBack as ArrowBackIcon, IoIosCloseCircle as CloseIcon } from "react-icons/io";
@@ -16,8 +17,10 @@ import useAppRepository from "@/components/hooks/useAppRepository";
 import useToggle from "@/components/hooks/useToggle";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Button } from "@mui/material";
-import { toBlob, toPng } from "html-to-image";
+import apiClient from "@/services/apiClient";
+import LoadingButton from "@mui/lab/LoadingButton";
+import { Button, CircularProgress } from "@mui/material";
+import { toBlob } from "html-to-image";
 
 import useQueryFetchTodayHoroscopeTreeStickers from "../_hooks/queries/useQueryFetchTodayHoroscopeTreeStickers";
 import { UseDecorateType } from "../_hooks/useDecorate";
@@ -68,6 +71,7 @@ export default function StepTwoV2({
   const [selectedSticker, setSelectedSticker] = useState<StickerType>();
   const [descMessage, setDescMessage] = useState(PLACEHOLDER);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const stickerImageURLs =
     stickersData?.supplementTypes.flatMap(sticker => sticker.images.map(image => image.url)) ?? [];
@@ -79,30 +83,65 @@ export default function StepTwoV2({
   };
 
   const captureScreenshot = async () => {
+    setIsLoading(true);
+
     initStickers(async () => {
-      setTimeout(async () => {
-        const element = document.getElementById(SUHO_CAPTURE_IMAGE);
+      const element = document.getElementById(SUHO_CAPTURE_IMAGE);
 
-        if (!element) {
-          return;
+      if (!element) {
+        return;
+      }
+
+      if (decorateInfo.onlyDownload) {
+        let blob: Blob | null = null;
+        const i = 0;
+        const maxAttempts = 100;
+
+        await toBlob(element, { cacheBust: true });
+        await toBlob(element, { cacheBust: true });
+        await toBlob(element, { cacheBust: true });
+        await toBlob(element, { cacheBust: true });
+        await toBlob(element, { cacheBust: true });
+
+        while ((blob?.size ?? 0) < 1000 && i < maxAttempts) {
+          blob = await toBlob(element, { cacheBust: true });
         }
 
-        if (decorateInfo.onlyDownload) {
-          const imageURL = await toPng(element, { includeQueryParams: true });
-          setDecorateInfo(prev => ({ ...prev, imageURL }));
+        if (blob) {
+          const response = await apiClient.post(
+            "/charms",
+            { image: blob },
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+              },
+            },
+          );
 
+          setIsLoading(false);
+          setDecorateInfo(prev => ({ ...prev, blobURL: response.data }));
           openDetails();
-        } else {
-          const blob = await toBlob(element, { includeQueryParams: true }) //
-            .catch(error => {
-              console.error("이미지화 에러 (decorate)", error);
-            });
-
-          if (blob) {
-            updateFields({ image: blob });
-          }
         }
-      }, 100);
+      } else {
+        let blob: Blob | null = null;
+        const i = 0;
+        const maxAttempts = 100;
+
+        await toBlob(element, { cacheBust: true });
+        await toBlob(element, { cacheBust: true });
+        await toBlob(element, { cacheBust: true });
+        await toBlob(element, { cacheBust: true });
+        await toBlob(element, { cacheBust: true });
+
+        while ((blob?.size ?? 0) < 1000 && i < maxAttempts) {
+          blob = await toBlob(element, { cacheBust: true });
+        }
+
+        if (blob) {
+          setIsLoading(false);
+          updateFields({ image: blob });
+        }
+      }
     });
   };
 
@@ -132,23 +171,34 @@ export default function StepTwoV2({
 
   return (
     <>
-      <VStack className="h-full w-full justify-start">
+      <VStack className="h-full w-full justify-start overflow-y-auto">
         <VStack sx={{ width: "100%", gap: "10px" }}>
           <VStack className="mt-[45px] w-full items-center justify-center">
             <HStack className="w-full items-center justify-between px-[20px]">
               <ArrowBackIcon
-                className="h-[24px] w-[24px] cursor-pointer text-white"
+                className="mr-[14px] h-[24px] w-[24px] cursor-pointer text-white"
                 onClick={onClickBack}
               />
-              <Label className="flex-grow-1 text-[16px] font-[700] text-white">
+              <Label className="flex-grow-1 mx-[20px] w-full text-center text-[16px] font-[700] text-white">
                 행운의 메세지와 스티커로 꾸미기
               </Label>
-              <Label
-                className="cursor-pointer text-[16px] font-[700] text-[#A48AFF]"
+              <LoadingButton
+                loading={isLoading}
+                loadingIndicator={<CircularProgress size={"20px"} />}
                 onClick={captureScreenshot}
+                sx={{
+                  fontSize: "16px",
+                  fontWeight: 700,
+                  color: "#A48AFF",
+                  padding: 0,
+                  marginRight: "-10px",
+                  width: "46px",
+                  minWidth: "46px",
+                }}
+                color="inherit"
               >
                 완료
-              </Label>
+              </LoadingButton>
             </HStack>
             <Label className="text-[13px] font-[500] text-white">{description}</Label>
           </VStack>
@@ -189,8 +239,18 @@ export default function StepTwoV2({
                 }}
                 value={descMessage}
                 onChange={e => setDescMessage(e.target.value)}
-                onEditMode={() => setIsEditMode(true)}
-                onBlur={() => setIsEditMode(false)}
+                onEditMode={() => {
+                  if (descMessage === PLACEHOLDER) {
+                    setDescMessage("");
+                  }
+
+                  setIsEditMode(true);
+                }}
+                onBlur={() => {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  (window.document.body.style as any).zoom = 1;
+                  setIsEditMode(false);
+                }}
               />
               {tempStickers.map(item => (
                 <Rnd
@@ -288,7 +348,15 @@ export default function StepTwoV2({
                         closeBottomSheet();
                       }}
                     >
-                      <img src={url} alt="sticker" className="h-full w-full" />
+                      {isMobileSafari ? (
+                        <object
+                          type="image/svg+xml"
+                          data={url}
+                          className="pointer-events-none h-full w-full"
+                        />
+                      ) : (
+                        <img src={url} alt="sticker" className="h-full w-full" />
+                      )}
                     </Button>
                   ))}
                 </>

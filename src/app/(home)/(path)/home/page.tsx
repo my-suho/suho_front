@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo } from "react";
 
 import useAppRepository from "@/components/hooks/useAppRepository";
+import useAuth from "@/components/hooks/useAuth";
 
 import TreeEmptyStatusView from "../../_components/TreeEmptyStatusView";
 import TreeExistStatusView from "../../_components/TreeExistStatusView";
@@ -14,6 +15,7 @@ import useHome from "../../_hooks/useHome";
 
 const useCheckGuest = () => {
   const searchParmas = useSearchParams();
+  const { clearToken } = useAuth();
 
   const {
     userInfoStore: [userInfo, setUserInfo],
@@ -50,7 +52,9 @@ export default function Home() {
     userInfoStore: [userInfo, setUserInfo],
   } = useAppRepository();
 
-  const useFetchTreeInfo = useQueryFetchTreeInfo({ userId: userInfo.userId });
+  const useFetchTreeInfo = useQueryFetchTreeInfo({
+    userId: receivedParam.userId ? receivedParam.userId : userInfo.userId,
+  });
   const { data: treeInfoData, isPending: isTreeInfoPending } = useFetchTreeInfo;
 
   const treeId = useMemo(() => {

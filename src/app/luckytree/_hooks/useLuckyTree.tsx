@@ -70,13 +70,6 @@ export default function useLuckyTree() {
           const treeId = data.id;
           handleGoToTreeFortuneResult(treeId);
         },
-        onError(error) {
-          toast({
-            title: "Uh on! Error",
-            description: `${error.message}`,
-            duration: 2000,
-          });
-        },
       },
     );
   };
@@ -89,7 +82,7 @@ export default function useLuckyTree() {
           handleGoToHome();
 
           toast({
-            duration: 3000,
+            duration: 1500,
             customView: (
               <VCStack className="h-full w-full">
                 <SHImage src="/imgs/icons/ic_sheet_tree.svg" className="h-[100px] w-[100px]" />

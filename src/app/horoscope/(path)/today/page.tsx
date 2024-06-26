@@ -36,9 +36,7 @@ export default function DailyHoroscopePage() {
                 {/* 데일리 운세 Card */}
                 <SHCard className="bg-[#0B082B] py-[44px]">
                   <VStack className="gap-[10px]">
-                    <SHLabel className="text-[18px] font-[800] text-[#A48AFF]">
-                      {data?.gptResponse.dailyHoroscopeTitle}
-                    </SHLabel>
+                    <SHLabel className="text-[18px] font-[800] text-[#A48AFF]">오늘의 운세</SHLabel>
                     <SHLabel className="whitespace-pre-wrap text-[14px] font-[500] text-[#E6E8EB]">
                       {data?.gptResponse.dailyHoroscope}
                     </SHLabel>
@@ -114,9 +112,9 @@ export default function DailyHoroscopePage() {
                     <SHLabel className="whitespace-pre-wrap text-[14px] font-[500] text-[#E6E8EB]">
                       {data?.gptResponse.luckSpiritContent}
                     </SHLabel>
-                    {/* 오늘의 행운 부적 받기 버튼 */}
+                    {/* 행운 부적 받기 버튼 */}
                     <VStack className="mt-[16px]">
-                      <CharmCustomizeSheet />
+                      <CharmCustomizeSheet onlyDownload={true} />
                     </VStack>
                   </VStack>
                 </SHCard>
