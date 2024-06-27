@@ -97,6 +97,7 @@ export default function HamburgerNav() {
                   key={route.type}
                   href={route.href}
                   className="text-[20px] font-[800] text-[#0B082B]"
+                  onClick={() => setIsOpen(false)}
                 >
                   {route.type}
                 </Link>
