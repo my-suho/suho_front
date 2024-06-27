@@ -21,7 +21,7 @@ export default function LuckyDateStep({ useluckyTree, onClickSubmit }: LuckyDate
 
   const { toast } = useToast();
 
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>();
 
   const onSelectDate = (date: Date | undefined) => {
     const selectedDate = dayjs(date);
@@ -54,6 +54,7 @@ export default function LuckyDateStep({ useluckyTree, onClickSubmit }: LuckyDate
             mode="single"
             selected={date}
             onSelect={onSelectDate}
+            fromDate={new Date()}
             className="max-w-[280px] rounded-md border border-[#40407C] bg-[#0B082B] px-[50px] text-white"
           />
         </VStack>
