@@ -55,7 +55,7 @@ export default function InfoPhoneNumberStep({
       resetCountdown();
       startCountdown();
       updateFields({ certCode: null });
-      setIsSMSSuccess(false);
+      setIsSMSSuccess(null);
 
       if (infoData.phoneNumber) {
         postRequestPhoneNumber({ phoneNumber: removeHyphens(infoData.phoneNumber) })
