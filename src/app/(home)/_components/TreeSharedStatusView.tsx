@@ -85,8 +85,6 @@ export default function TreeSharedStatusView({
                   <span className="text-[#B49FFF]">{treeInfoData?.username}</span>님의 행운 나무
                 </SHLabel>
               </VStack>
-
-              <HamburgerNav />
             </HStack>
             <SHLabel className="mt-[12px] text-[16px] font-[500] text-white">
               {`${treeCharmsData?.totalSize ?? 0}개의 행운 부적이 걸렸어요!`}
