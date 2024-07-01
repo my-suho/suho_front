@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import Script from "next/script";
 
 import AppLayout from "@/components/AppLayout";
 import { cn } from "@/lib/utils";
@@ -49,13 +50,31 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko" className={`${pretendard.variable} font-pretendard font-semibold`}>
-      <head></head>
+      <head>
+        <Script id="google-tag-manager" strategy="afterInteractive">
+          {`
+            (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+            new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+            j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+            'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+            })(window,document,'script','dataLayer','GTM-KTDV46N3');
+          `}
+        </Script>
+      </head>
       <body
         className={cn(
           pretendard.className,
           "h-dvh w-full bg-gradient-to-b from-[#030329] to-[#9E83FF] bg-cover bg-no-repeat",
         )}
       >
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-KTDV46N3"
+            height="0"
+            width="0"
+            style={{ display: "none", visibility: "hidden" }}
+          ></iframe>
+        </noscript>
         <AppRegister>
           <ExternalLinkHandler />
           <AppLayout>{children}</AppLayout>
